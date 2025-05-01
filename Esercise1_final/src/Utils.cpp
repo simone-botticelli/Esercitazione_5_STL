@@ -2,13 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <Eigen/Eigen>
-#include "PolygonalMesh.hpp"
-#include "UCDUtilities.hpp"
 
-namespace PolygonalLibrary
+namespace TriangularLibrary
 {
-bool ImportMesh(PolygonalMesh& mesh)
+bool ImportMesh(TriangularMesh& mesh)
 {
 
     if(!ImportCell0Ds(mesh))
@@ -24,7 +21,7 @@ bool ImportMesh(PolygonalMesh& mesh)
 
 }
 // ***************************************************************************
-bool ImportCell0Ds(PolygonalMesh& mesh)
+bool ImportCell0Ds(TriangularMesh& mesh)
 {
     ifstream file("./Cell0Ds.csv");
 
@@ -59,10 +56,9 @@ bool ImportCell0Ds(PolygonalMesh& mesh)
 
         unsigned int id;
         unsigned int marker;
-        char sep;
         Vector2d coord;
 
-        converter >>  id >> sep >> marker >> sep >> mesh.Cell0DsCoordinates(0, id) >> sep >> mesh.Cell0DsCoordinates(1, id);
+        converter >>  id >> marker >> mesh.Cell0DsCoordinates(0, id) >> mesh.Cell0DsCoordinates(1, id);
 
         mesh.Cell0DsId.push_back(id);
 
@@ -76,6 +72,7 @@ bool ImportCell0Ds(PolygonalMesh& mesh)
             }
             else
             {
+                // mesh.MarkerCell0Ds[marker].push_back(id);
                 it->second.push_back(id);
             }
         }
@@ -85,7 +82,7 @@ bool ImportCell0Ds(PolygonalMesh& mesh)
     return true;
 }
 // ***************************************************************************
-bool ImportCell1Ds(PolygonalMesh& mesh)
+bool ImportCell1Ds(TriangularMesh& mesh)
 {
     ifstream file("./Cell1Ds.csv");
 
@@ -119,10 +116,9 @@ bool ImportCell1Ds(PolygonalMesh& mesh)
 
         unsigned int id;
         unsigned int marker;
-        char sep;
         Vector2i vertices;
 
-        converter >>  id >> sep >> marker >> sep >> mesh.Cell1DsExtrema(0, id) >> sep >> mesh.Cell1DsExtrema(1, id);
+        converter >>  id >> marker >>  mesh.Cell1DsExtrema(0, id) >>  mesh.Cell1DsExtrema(1, id);
         mesh.Cell1DsId.push_back(id);
 
         /// Memorizza i marker
@@ -135,6 +131,7 @@ bool ImportCell1Ds(PolygonalMesh& mesh)
             }
             else
             {
+                // mesh.MarkerCell1Ds[marker].push_back(id);
                 it->second.push_back(id);
             }
         }
@@ -143,7 +140,7 @@ bool ImportCell1Ds(PolygonalMesh& mesh)
     return true;
 }
 // ***************************************************************************
-bool ImportCell2Ds(PolygonalMesh& mesh)
+bool ImportCell2Ds(TriangularMesh& mesh)
 {
     ifstream file;
     file.open("./Cell2Ds.csv");
@@ -178,45 +175,18 @@ bool ImportCell2Ds(PolygonalMesh& mesh)
         istringstream converter(line);
 
         unsigned int id;
-        unsigned int marker;
-        char sep;
-        unsigned int NumVertices;
-        unsigned int NumEdges;
-        vector<unsigned int> vertices;
-        vector<unsigned int> edges;
-        
+        array<unsigned int, 3> vertices;
+        array<unsigned int, 3> edges;
 
-        converter >>  id >> sep >> marker >> sep >> NumVertices;
-        vertices.reserve(NumVertices);
-        unsigned int vertex;
-        for(unsigned int i = 0; i < NumVertices; i++){
-	        converter >> sep >> vertex;
-	        vertices.push_back(vertex);
-        }
-        edges.reserve(NumEdges);
-        unsigned int edge;
-        for(unsigned int i = 0; i < NumEdges; i++){
-	        converter >> sep >> edge;
-	        vertices.push_back(edge);
-        }
+        converter >>  id;
+        for(unsigned int i = 0; i < 3; i++)
+            converter >> vertices[i];
+        for(unsigned int i = 0; i < 3; i++)
+            converter >> edges[i];
 
         mesh.Cell2DsId.push_back(id);
         mesh.Cell2DsVertices.push_back(vertices);
         mesh.Cell2DsEdges.push_back(edges);
-        
-        /// Memorizza i marker
-        if(marker != 0)
-        {
-            const auto it = mesh.MarkerCell2Ds.find(marker);
-            if(it == mesh.MarkerCell2Ds.end())
-            {
-                mesh.MarkerCell2Ds.insert({marker, {id}});
-            }
-            else
-            {
-                it->second.push_back(id);
-            }
-        }
     }
 
     return true;
