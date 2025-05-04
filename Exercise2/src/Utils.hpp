@@ -27,4 +27,15 @@ bool ImportCell1Ds(PolygonalMesh& mesh);
 /// return the result of the reading, true if is success, false otherwise
 bool ImportCell2Ds(PolygonalMesh& mesh);
 
+
+bool test_mesh(PolygonalMesh& mesh);
+
+/// Test if markers are correctly stored
+bool test_markers(PolygonalMesh& mesh);
+
+///Test if there are edges with null lenght
+bool test_edges_lenght(PolygonalMesh& mesh);
+
+///Test if there are polygons with null area
+bool test_polygons_area(PolygonalMesh& mesh);
 }
