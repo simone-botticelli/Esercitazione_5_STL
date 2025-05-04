@@ -215,40 +215,104 @@ bool ImportCell2Ds(PolygonalMesh& mesh)
 }
 
 
-bool test_mesh(PolygonalMesh& mesh)
+bool test_mesh(const PolygonalMesh& mesh)
 {
 	if(!test_markers(mesh))
 		return false;
-		else cout << "markers test passed" << endl;
+		else cout << "Markers test passed" << endl;
 	if(!test_edges_lenght(mesh))
 		return false;
-		else cout << "edges test passed " << endl;
+		else cout << "Polygons edges test passed" << endl;
 	if(!test_polygons_area(mesh))
 		return false;
-		else cout << "areas test passed" << endl;
+		else cout << "Polygons areas test passed" << endl;
 
 	return true;
 }
 
 
-bool test_markers(PolygonalMesh& mesh) 
+bool isEqual(const double& x, const double& y)
+{
+	double epsilon = std::numeric_limits<double>::epsilon();
+	return(abs(x-y) < epsilon);
 
-{   
-	bool passed = true;
-	
-	return passed;
 }
 
 
-bool test_edges_lenght(PolygonalMesh& mesh)
+bool test_markers(const PolygonalMesh& mesh) 
+
+{   
+	bool allCorrect = true;
+
+    double epsilon = std::numeric_limits<double>::epsilon();
+
+
+    for (unsigned int i = 0; i < mesh.NumCell0Ds; ++i) {
+        const double& x = mesh.Cell0DsCoordinates(0, i);
+        const double& y = mesh.Cell0DsCoordinates(1, i);
+        const int& marker = mesh.MarkerCell0Ds(i);
+        bool correct = false;
+
+        switch (marker) {
+            case 0:
+                correct = x > epsilon && x < 1.0 - epsilon &&
+                          y > epsilon && y < 1.0 - epsilon;
+                break;
+            case 1:
+                correct = isEqual(x, 0.0) && isEqual(y, 0.0);
+                break;
+            case 2:
+                correct = isEqual(x, 1.0) && isEqual(y, 0.0);
+                break;
+            case 3:
+                correct = isEqual(x, 1.0) && isEqual(y, 1.0);
+                break;
+            case 4:
+                correct = isEqual(x, 0.0) && isEqual(y, 1.0);
+                break;
+            case 5:
+                correct = isEqual(y, 0.0) && x > epsilon && x < 1.0 - epsilon;
+                break;
+            case 6:
+                correct = isEqual(x, 1.0) && y > epsilon && y < 1.0 - epsilon;
+                break;
+            case 7:
+                correct = isEqual(y, 1.0) && x > epsilon && x < 1.0 - epsilon;
+                break;
+            case 8:
+                correct = isEqual(x, 0.0) && y > epsilon && y < 1.0 - epsilon;
+                break;
+            default:
+                cerr << "Invalid marker " << marker << " at point index " << i << endl;
+                allCorrect = false;
+                continue;
+        }
+
+        if (!correct) {
+            cerr << "Marker error at point index " << i
+                 << " with coordinates (" << x << ", " << y << ")"
+                 << " and marker = " << marker << endl;
+            allCorrect = false;
+        }
+    }
+
+    return allCorrect;
+	
+}
+
+
+
+
+
+bool test_edges_lenght(const PolygonalMesh& mesh)
 {
 	double epsilon = std::numeric_limits<double>::epsilon();
 	
 
 	for(const unsigned int& edge_id : mesh.Cell1DsId)
 	{
-		int& id_origin = mesh.Cell1DsExtrema(0, edge_id);
-		int& id_end = mesh.Cell1DsExtrema(1, edge_id);
+		const int& id_origin = mesh.Cell1DsExtrema(0, edge_id);
+		const int& id_end = mesh.Cell1DsExtrema(1, edge_id);
 		auto origin = mesh.Cell0DsCoordinates.col(id_origin);
 		auto end = mesh.Cell0DsCoordinates.col(id_end);
 		double distance = (origin - end).norm();
@@ -266,23 +330,23 @@ bool test_edges_lenght(PolygonalMesh& mesh)
 }
 
 
-bool test_polygons_area(PolygonalMesh& mesh)
+bool test_polygons_area(const PolygonalMesh& mesh)
 {
 	vector<bool> all_passed;
 	double epsilon = std::numeric_limits<double>::epsilon();
 	
 	for(const unsigned int& polygon_id : mesh.Cell2DsId){
-		vector<unsigned int>& p_vertices = mesh.Cell2DsVertices[polygon_id];
+		const vector<unsigned int>& p_vertices = mesh.Cell2DsVertices[polygon_id];
 		double area = 0.0;
 		unsigned int n_vertices = p_vertices.size();
 		for (int i = 0; i < n_vertices; i++) {
-			unsigned int& curr = p_vertices[i];
-			unsigned int& next = p_vertices[(i + 1) % n_vertices]; 
+			const unsigned int& curr = p_vertices[i];
+			const unsigned int& next = p_vertices[(i + 1) % n_vertices]; 
 	
-			double& xi = mesh.Cell0DsCoordinates(0, curr);
-			double& yi = mesh.Cell0DsCoordinates(1, curr);
-			double& xj = mesh.Cell0DsCoordinates(0, next);
-			double& yj = mesh.Cell0DsCoordinates(1, next);
+			const double& xi = mesh.Cell0DsCoordinates(0, curr);
+			const double& yi = mesh.Cell0DsCoordinates(1, curr);
+			const double& xj = mesh.Cell0DsCoordinates(0, next);
+			const double& yj = mesh.Cell0DsCoordinates(1, next);
 	
 			area += xi * yj - xj * yi;
 		}

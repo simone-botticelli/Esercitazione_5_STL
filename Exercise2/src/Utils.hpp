@@ -27,15 +27,16 @@ bool ImportCell1Ds(PolygonalMesh& mesh);
 /// return the result of the reading, true if is success, false otherwise
 bool ImportCell2Ds(PolygonalMesh& mesh);
 
+bool isEqual(const double& x, const double& y);
 
-bool test_mesh(PolygonalMesh& mesh);
+bool test_mesh(const PolygonalMesh& mesh);
 
 /// Test if markers are correctly stored
-bool test_markers(PolygonalMesh& mesh);
+bool test_markers(const PolygonalMesh& mesh);
 
 ///Test if there are edges with null lenght
-bool test_edges_lenght(PolygonalMesh& mesh);
+bool test_edges_lenght(const PolygonalMesh& mesh);
 
 ///Test if there are polygons with null area
-bool test_polygons_area(PolygonalMesh& mesh);
+bool test_polygons_area(const PolygonalMesh& mesh);
 }
